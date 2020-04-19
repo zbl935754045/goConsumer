@@ -42,8 +42,8 @@ func LoopConsumer(topic string, callback ConsumerCallback) {
 	}
 }
 
-func Close() {
-	if consumer != nil {
-		consumer.Close()
-	}
-}
+//func Close() {
+//	if consumer != nil {
+//		consumer.Close()
+//	}
+//}
