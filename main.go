@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v7"
+	//"github.com/garyburd/redigo/redis"
 	"os/signal"
 	"runtime"
 	"syscall"
@@ -37,10 +38,11 @@ func main() {
 	runtime.Goexit()
 }
 
+
 func TopicCallBack(data []byte) {
 	//log.Printf("kafka Test:" + string(data))
 	var req request
-	err := json.Unmarshal([]byte(data), &req)
+	_ = json.Unmarshal([]byte(data), &req)
 	//fmt.Println(req)
 
 	client := redis.NewClient(&redis.Options{
@@ -50,7 +52,7 @@ func TopicCallBack(data []byte) {
 	})
 
 
-	err = client.ZAdd(req.RoomId, &redis.Z{
+	err := client.ZAdd(req.RoomId, &redis.Z{
 		Score:  req.Time,
 		Member: data,
 	}).Err()
@@ -58,7 +60,12 @@ func TopicCallBack(data []byte) {
 		panic(err)
 	}
 
-	vals, err := client.ZRevRange(req.RoomId,0,-1).Result()
+
+
+	vals, err := client.ZRangeByScore(req.RoomId, &redis.ZRangeBy{
+		Min: "0",
+		Max: "156578",
+	}).Result()
 	if err != nil {
 		panic(err)
 	}
@@ -66,3 +73,4 @@ func TopicCallBack(data []byte) {
 		fmt.Println(val)
 	}
 }
+
